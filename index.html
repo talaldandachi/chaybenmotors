@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chayben Motors - Premium Car Dealership</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .gradient-bg {
+      background: linear-gradient(135deg, #030303 0%, #000000 50%, #1a1a1a 100%);
+    }
+    .car-card {
+      transition: all 0.3s ease;
+      background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+      border: 1px solid #333;
+    }
+    .car-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+    .admin-panel {
+      background: linear-gradient(145deg, #1f1f1f, #0f0f0f);
+      border: 2px solid #dc2626;
+    }
+  </style>
+</head>
+<body class="gradient-bg min-h-screen text-white">
+
+  <!-- Header -->
+  <header class="bg-black bg-opacity-80 backdrop-blur-sm sticky top-0 z-50 border-b border-red-600">
+    <div class="container mx-auto px-6 py-4">
+      <div class="flex justify-between items-center">
+        <div class="flex items-center space-x-3">
+          <div class="w-12 h-12 rounded-full overflow-hidden bg-white p-1">
+            <img src="IMG_7648.jpg" alt="Logo" class="w-full h-full object-contain">
+          </div>
+          <h1 class="text-3xl font-bold text-red-500">CHAYBEN MOTORS</h1>
+        </div>
+        <button onclick="toggleAdminPanel()" class="bg-red-600 hover:bg-red-700 px-6 py-2 rounded-lg font-semibold transition-colors">
+          Admin Panel
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Admin Panel -->
+  <div id="adminPanel" class="hidden fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4">
+    <div class="admin-panel rounded-xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-red-500">Admin Panel</h2>
+        <button onclick="toggleAdminPanel()" class="text-red-500 hover:text-red-400 text-2xl">&times;</button>
+      </div>
+
+      <div id="passwordSection" class="mb-6">
+        <label class="block text-sm font-medium mb-2">Enter Password:</label>
+        <div class="flex space-x-3">
+          <input type="password" id="adminPassword" class="flex-1 bg-gray-800 border border-gray-600 rounded-lg px-4 py-2 text-white focus:border-red-500 focus:outline-none" placeholder="Enter admin password">
+          <button onclick="checkPassword()" class="bg-red-600 hover:bg-red-700 px-6 py-2 rounded-lg font-semibold">Login</button>
+        </div>
+      </div>
+
+      <div id="addCarForm" class="hidden">
+        <h3 class="text-xl font-semibold mb-4 text-red-400">Add New Car</h3>
+        <form onsubmit="addCar(event)" class="space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium mb-2">Car Make & Model:</label>
+              <input type="text" id="carName" required class="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="e.g., BMW X5">
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-2">Year:</label>
+              <input type="number" id="carYear" required min="1990" max="2024" class="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="2023">
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-2">Price ($):</label>
+              <input type="number" id="carPrice" required min="0" class="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="25000">
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-2">Kilometers:</label>
+              <input type="number" id="carKm" required min="0" class="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="50000">
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">Photo</label>
+            <input type="file" id="carPhoto" accept="images/*" class="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-2 text-white file:bg-red-600 file:text-white file:rounded file:px-4 file:py-2">
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">Car Information:</label>
+            <textarea id="carInfo" required rows="3" class="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="Describe the car..."></textarea>
+          </div>
+          <button type="submit" class="w-full bg-red-600 hover:bg-red-700 py-3 rounded-lg font-semibold transition-colors">
+            Add Car to Gallery
+          </button>
+        </form>
+        <button onclick="deleteAllCarsPrompt()" class="mt-6 w-full bg-gray-800 hover:bg-gray-700 py-3 rounded-lg font-semibold text-red-400 border border-red-600">
+          حذف كل السيارات 🔥
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <main class="container mx-auto px-6 py-12">
+    <div class="text-center mb-16">
+      <h2 class="text-5xl font-bold mb-4">Premium <span class="text-red-500">Automotive</span> Excellence</h2>
+      <p class="text-xl text-gray-300 max-w-2xl mx-auto">Discover our curated collection of premium vehicles. Quality, reliability, and exceptional service guaranteed.</p>
+    </div>
+
+    <input type="text" id="searchInput" oninput="filterCars()" placeholder="ابحث عن سيارة..." 
+    class="mb-8 block mx-auto w-full max-w-md px-4 py-2 rounded-lg bg-gray-800 border border-gray-600 text-white text-center focus:outline-none focus:border-red-500" />
+
+    <div class="mb-8">
+      <h3 class="text-3xl font-bold text-center mb-8">Our <span class="text-red-500">Car Gallery</span></h3>
+      <div id="carGallery" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div class="car-card rounded-xl overflow-hidden">
+          <img src="https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=250&fit=crop" alt="BMW M3" class="w-full h-48 object-cover">
+          <div class="p-6">
+            <h4 class="text-xl font-bold mb-2 text-red-400">BMW M3 Competition</h4>
+            <div class="space-y-2 text-gray-300 mb-4">
+              <p><span class="text-red-500">Year:</span> 2022</p>
+              <p><span class="text-red-500">Price:</span> $75,000</p>
+              <p><span class="text-red-500">Kilometers:</span> 15,000 km</p>
+            </div>
+            <p class="text-gray-400 text-sm mb-4">High-performance luxury sedan...</p>
+           <a href="https://wa.me/96176097353" target="_blank">
+            <button class="Contact-button">contact us </button>
+           </a>
+          </div>
+        </div>
+        <!-- المزيد من السيارات -->
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-black bg-opacity-80 border-t border-red-600 py-8 mt-16">
+    <div class="container mx-auto px-6 text-center">
+      <div class="flex items-center justify-center space-x-3 mb-4">
+        <div class="w-8 h-8 rounded-full overflow-hidden bg-white p-1">
+          <img src="IMG_7648.jpg" alt="Logo" class="w-full h-full object-contain">
+        </div>
+        <span class="text-xl font-bold text-red-500">CHAYBEN MOTORS</span>
+      </div>
+      <p class="text-gray-400">&copy; 2024 Chayben Motors.</p>
+    </div>
+  </footer>
+
+  <script>
+    let isAdminLoggedIn = false;
+    const correctPassword = "amjaddandachli";
+
+    function toggleAdminPanel() {
+      const panel = document.getElementById('adminPanel');
+      panel.classList.toggle('hidden');
+      if (!panel.classList.contains('hidden')) {
+        document.getElementById('adminPassword').focus();
+      }
+    }
+
+    function checkPassword() {
+      const password = document.getElementById('adminPassword').value;
+      if (password === correctPassword) {
+        isAdminLoggedIn = true;
+        document.getElementById('passwordSection').classList.add('hidden');
+        document.getElementById('addCarForm').classList.remove('hidden');
+        document.getElementById('adminPassword').value = '';
+      } else {
+        alert('Incorrect password!');
+        document.getElementById('adminPassword').value = '';
+      }
+    }
+
+    function filterCars() {
+      const query = document.getElementById('searchInput').value.toLowerCase();
+      const cars = document.querySelectorAll('#carGallery .car-card');
+      cars.forEach(card => {
+        const name = card.querySelector('h4').innerText.toLowerCase();
+        card.style.display = name.includes(query) ? '' : 'none';
+      });
+    }
+
+    function createDeleteButton(card) {
+      const btn = document.createElement('button');
+      btn.className = "mt-4 w-full bg-gray-800 hover:bg-red-700 py-2 rounded-lg font-semibold text-red-400 border border-red-600";
+      btn.innerText = "🗑️ حذف السيارة";
+      btn.onclick = function () {
+        const password = prompt("أدخل كلمة المرور لحذف السيارة:");
+        if (password === correctPassword) {
+          card.remove();
+          alert("تم حذف السيارة.");
+        } else {
+          alert("كلمة المرور غير صحيحة.");
+        }
+      };
+      card.querySelector('.p-6').appendChild(btn);
+    }
+
+    function addCar(event) {
+      event.preventDefault();
+      const carName = document.getElementById('carName').value;
+      const carYear = document.getElementById('carYear').value;
+      const carPrice = document.getElementById('carPrice').value;
+      const carKm = document.getElementById('carKm').value;
+      const carPhotoInput = document.getElementById('carPhoto');
+      const carInfo = document.getElementById('carInfo').value;
+      const reader = new FileReader();
+
+      reader.onload = function (e) {
+        const imageURL = e.target.result;
+        const carCard = document.createElement('div');
+        carCard.className = 'car-card rounded-xl overflow-hidden';
+        carCard.innerHTML = `
+          <img src="${imageURL}" alt="${carName}" class="w-full h-48 object-cover">
+          <div class="p-6">
+            <h4 class="text-xl font-bold mb-2 text-red-400">${carName}</h4>
+            <div class="space-y-2 text-gray-300 mb-4">
+              <p><span class="text-red-500">Year:</span> ${carYear}</p>
+              <p><span class="text-red-500">Price:</span> $${parseInt(carPrice).toLocaleString()}</p>
+              <p><span class="text-red-500">Kilometers:</span> ${parseInt(carKm).toLocaleString()} km</p>
+            </div>
+            <p class="text-gray-400 text-sm mb-4">${carInfo}</p>
+            <button class="w-full bg-red-600 hover:bg-red-700 py-2 rounded-lg font-semibold">Contact Us</button>
+          </div>`;
+        document.getElementById('carGallery').appendChild(carCard);
+        createDeleteButton(carCard);
+
+        document.getElementById('carName').value = '';
+        document.getElementById('carYear').value = '';
+        document.getElementById('carPrice').value = '';
+        document.getElementById('carKm').value = '';
+        document.getElementById('carPhoto').value = '';
+        document.getElementById('carInfo').value = '';
+
+        toggleAdminPanel();
+        isAdminLoggedIn = false;
+        document.getElementById('passwordSection').classList.remove('hidden');
+        document.getElementById('addCarForm').classList.add('hidden');
+
+        alert('Car added successfully!');
+      };
+
+      if (carPhotoInput.files && carPhotoInput.files[0]) {
+        reader.readAsDataURL(carPhotoInput.files[0]);
+      } else {
+        alert("Please upload an image.");
+      }
+    }
+
+    function deleteAllCarsPrompt() {
+      const password = prompt("أدخل كلمة المرور لحذف جميع السيارات:");
+      if (password === correctPassword) {
+        document.getElementById('carGallery').innerHTML = '';
+        alert("تم حذف جميع السيارات.");
+      } else {
+        alert("كلمة المرور غير صحيحة.");
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const existingCars = document.querySelectorAll('#carGallery .car-card');
+      existingCars.forEach(card => createDeleteButton(card));
+    })
+  </script>
+  <div style="text-align: center; margin-top: 30px;">
+  <a href="https://wa.me/96176097353" target="_blank" title="واتساب">
+    <img src="https://img.icons8.com/color/48/whatsapp--v1.png" alt="WhatsApp" style="width: 40px; margin: 10px;">
+  </a>
+  <a href="https://instagram.com/chaybenmotors" target="_blank" title="إنستغرام">
+    <img src="https://img.icons8.com/fluency/48/instagram-new.png" alt="Instagram" style="width: 40px; margin: 10px;">
+  </a>
+  <a href="https://tiktok.com/@chybenmotors" target="_blank" title="تيك توك">
+    <img src="https://img.icons8.com/color/48/tiktok--v1.png" alt="TikTok" style="width: 40px; margin: 10px;">
+  </a>
+</div>
+</body>
+</html>
