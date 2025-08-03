@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ＣＨＡＹＢＥＮ
-Ｍｏｔｏｒｓ - Premium Car Dealership</title>
+  <title>Chayben Motors - Premium Car Dealership</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     .gradient-bg {
@@ -33,10 +32,9 @@
       <div class="flex justify-between items-center">
         <div class="flex items-center space-x-3">
           <div class="w-12 h-12 rounded-full overflow-hidden bg-white p-1">
-            <img src="IMG_7648.jpg" alt="Logo" class="w-full h-full object-contain">
+            <img src="logo.png" alt="Logo" class="w-full h-full object-contain">
           </div>
-          <h1 class="text-3xl font-bold text-red-500">ＣＨＡＹＢＥＮ
-            Ｍｏｔｏｒｓ</h1>
+          <h1 class="text-3xl font-bold text-red-500">CHAYBEN MOTORS</h1>
         </div>
         <button onclick="toggleAdminPanel()" class="bg-red-600 hover:bg-red-700 px-6 py-2 rounded-lg font-semibold transition-colors">
           Admin Panel
@@ -84,7 +82,7 @@
           </div>
           <div>
             <label class="block text-sm font-medium mb-2">Photo</label>
-            <input type="file" id="carPhoto" accept="images/*" class="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-2 text-white file:bg-red-600 file:text-white file:rounded file:px-4 file:py-2">
+            <input type="file" id="carPhoto" accept="image/*" class="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-2 text-white file:bg-red-600 file:text-white file:rounded file:px-4 file:py-2">
           </div>
           <div>
             <label class="block text-sm font-medium mb-2">Car Information:</label>
@@ -123,9 +121,7 @@
               <p><span class="text-red-500">Kilometers:</span> 15,000 km</p>
             </div>
             <p class="text-gray-400 text-sm mb-4">High-performance luxury sedan...</p>
-           <a href="https://wa.me/96176097353" target="_blank">
-            <button class="Contact-button">contact us </button>
-           </a>
+            <button class="w-full bg-red-600 hover:bg-red-700 py-2 rounded-lg font-semibold">Contact Us</button>
           </div>
         </div>
         <!-- المزيد من السيارات -->
@@ -138,7 +134,7 @@
     <div class="container mx-auto px-6 text-center">
       <div class="flex items-center justify-center space-x-3 mb-4">
         <div class="w-8 h-8 rounded-full overflow-hidden bg-white p-1">
-          <img src="IMG_7648.jpg" alt="Logo" class="w-full h-full object-contain">
+          <img src="logo.png" alt="Logo" class="w-full h-full object-contain">
         </div>
         <span class="text-xl font-bold text-red-500">CHAYBEN MOTORS</span>
       </div>
@@ -188,6 +184,7 @@
         const password = prompt("أدخل كلمة المرور لحذف السيارة:");
         if (password === correctPassword) {
           card.remove();
+          saveCarsToLocalStorage();  // حفظ التحديث بعد الحذف
           alert("تم حذف السيارة.");
         } else {
           alert("كلمة المرور غير صحيحة.");
@@ -225,6 +222,8 @@
         document.getElementById('carGallery').appendChild(carCard);
         createDeleteButton(carCard);
 
+        saveCarsToLocalStorage(); // حفظ السيارة الجديدة في التخزين المحلي
+
         document.getElementById('carName').value = '';
         document.getElementById('carYear').value = '';
         document.getElementById('carPrice').value = '';
@@ -251,27 +250,62 @@
       const password = prompt("أدخل كلمة المرور لحذف جميع السيارات:");
       if (password === correctPassword) {
         document.getElementById('carGallery').innerHTML = '';
+        saveCarsToLocalStorage(); // حذف البيانات من التخزين المحلي أيضًا
         alert("تم حذف جميع السيارات.");
       } else {
         alert("كلمة المرور غير صحيحة.");
       }
     }
 
+    // حفظ جميع السيارات في LocalStorage بصيغة JSON
+    function saveCarsToLocalStorage() {
+      const cars = [];
+      document.querySelectorAll('#carGallery .car-card').forEach(card => {
+        const name = card.querySelector('h4').innerText;
+        const year = card.querySelector('p:nth-child(1) span + span, p:nth-child(1)').parentElement ? card.querySelector('.space-y-2 p:nth-child(1)').innerText.replace('Year:', '').trim() : '';
+        const price = card.querySelector('.space-y-2 p:nth-child(2)').innerText.replace('Price:', '').replace('$','').trim();
+        const km = card.querySelector('.space-y-2 p:nth-child(3)').innerText.replace('Kilometers:', '').replace('km','').trim();
+        const info = card.querySelector('p.text-gray-400').innerText;
+        const img = card.querySelector('img').src;
+
+        cars.push({ name, year, price, km, info, img });
+      });
+      localStorage.setItem('carsData', JSON.stringify(cars));
+    }
+
+    // تحميل السيارات من LocalStorage وإظهارها
+    function loadCarsFromLocalStorage() {
+      const carsJSON = localStorage.getItem('carsData');
+      if (!carsJSON) return;
+      const cars = JSON.parse(carsJSON);
+      const gallery = document.getElementById('carGallery');
+      gallery.innerHTML = ''; // تفريغ المعرض
+
+      cars.forEach(car => {
+        const carCard = document.createElement('div');
+        carCard.className = 'car-card rounded-xl overflow-hidden';
+        carCard.innerHTML = `
+          <img src="${car.img}" alt="${car.name}" class="w-full h-48 object-cover">
+          <div class="p-6">
+            <h4 class="text-xl font-bold mb-2 text-red-400">${car.name}</h4>
+            <div class="space-y-2 text-gray-300 mb-4">
+              <p><span class="text-red-500">Year:</span> ${car.year}</p>
+              <p><span class="text-red-500">Price:</span> $${parseInt(car.price).toLocaleString()}</p>
+              <p><span class="text-red-500">Kilometers:</span> ${parseInt(car.km).toLocaleString()} km</p>
+            </div>
+            <p class="text-gray-400 text-sm mb-4">${car.info}</p>
+            <button class="w-full bg-red-600 hover:bg-red-700 py-2 rounded-lg font-semibold">Contact Us</button>
+          </div>`;
+        gallery.appendChild(carCard);
+        createDeleteButton(carCard);
+      });
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
+      loadCarsFromLocalStorage();  // استرجاع السيارات من التخزين المحلي عند تحميل الصفحة
       const existingCars = document.querySelectorAll('#carGallery .car-card');
       existingCars.forEach(card => createDeleteButton(card));
-    })
+    });
   </script>
-  <div style="text-align: center; margin-top: 30px;">
-  <a href="https://wa.me/96176097353" target="_blank" title="واتساب">
-    <img src="https://img.icons8.com/color/48/whatsapp--v1.png" alt="WhatsApp" style="width: 40px; margin: 10px;">
-  </a>
-  <a href="https://instagram.com/chaybenmotors" target="_blank" title="إنستغرام">
-    <img src="https://img.icons8.com/fluency/48/instagram-new.png" alt="Instagram" style="width: 40px; margin: 10px;">
-  </a>
-  <a href="https://tiktok.com/@chybenmotors" target="_blank" title="تيك توك">
-    <img src="https://img.icons8.com/color/48/tiktok--v1.png" alt="TikTok" style="width: 40px; margin: 10px;">
-  </a>
-</div>
 </body>
 </html>
